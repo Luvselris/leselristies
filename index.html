@@ -740,21 +740,21 @@
           <button type="button" class="star-btn selected" data-val="5" onclick="setStar(5)">★</button>
         </div>
 
-        <input type="text" class="field-input" id="reviewerName" placeholder="ชื่อลูกค้า..." maxlength="40" required>
+        <input type="text" class="field-input" id="reviewerName" placeholder="name ..." maxlength="40" required>
 
         <div class="avatar-picker-row">
           <img id="customerAvatarPreview" class="avatar-preview-thumb" src="https://files.catbox.moe/jtgqn5.jpeg" alt="Customer Avatar">
           <div class="avatar-upload-meta">
             <label for="customerAvatarFile" class="avatar-upload-label">เลือกรูปโปรไฟล์ลูกค้า (ไม่บังคับ)</label>
-            <div class="avatar-upload-hint" id="customerAvatarStatus">ไม่ใส่จะใช้รูปค่าเริ่มต้นอัตโนมัติ</div>
+            <div class="avatar-upload-hint" id="customerAvatarStatus">ไม่ใส่จะใช้รูปค่าเริ่มต้นจากร้านให้ค้าบ บ</div>
             <input type="file" id="customerAvatarFile" accept="image/*" style="display:none;" onchange="handleCustomerAvatar(this)">
           </div>
           <button type="button" class="clear-avatar-btn" onclick="resetCustomerAvatar()">ใช้รูปเดิม</button>
         </div>
 
-        <textarea class="field-textarea" id="reviewerComment" placeholder="พิมพ์ความประทับใจหรือรีวิวของคุณ..." maxlength="400" required></textarea>
+        <textarea class="field-textarea" id="reviewerComment" placeholder="เขียนรีวิวได้เลยนะคะ" maxlength="400" required></textarea>
 
-        <button type="submit" class="submit-review-btn" id="submitReviewBtn">ส่งรีวิว</button>
+        <button type="submit" class="submit-review-btn" id="submitReviewBtn">sent review</button>
       </form>
 
       <div class="reviews-feed-box" id="reviewsFeed">
