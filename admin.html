@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>leselristie · admin</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500;600&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Quicksand', 'Mitr', sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: #f4f5f7;
+      color: #23262d;
+      padding: 18px 14px 72px;
+    }
+
+    .admin-wrap {
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .panel-card {
+      background: #ffffff;
+      border: 1.5px solid #e2e6ee;
+      border-radius: 22px;
+      padding: 16px;
+      box-shadow: 0 8px 24px rgba(24, 28, 36, 0.05);
+    }
+
+    .panel-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .section-block {
+      margin-bottom: 14px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid #e2e6ee;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .section-block:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .section-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #23262d;
+    }
+
+    .field-input, .field-textarea {
+      width: 100%;
+      border: 1.5px solid #e2e6ee;
+      background: #f8f9fb;
+      color: #23262d;
+      border-radius: 14px;
+      padding: 10px 12px;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .field-input:focus, .field-textarea:focus {
+      border-color: #4b5563;
+      background: #ffffff;
+    }
+
+    .field-textarea {
+      min-height: 76px;
+      resize: vertical;
+    }
+
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 9px;
+    }
+
+    .color-box {
+      background: #f8f9fb;
+      border: 1px solid #e2e6ee;
+      border-radius: 14px;
+      padding: 9px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .color-box span {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #68707e;
+    }
+
+    .color-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .color-swatch {
+      width: 30px;
+      height: 30px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .color-code-input {
+      flex: 1;
+      min-width: 0;
+      border: 1px solid #e2e6ee;
+      background: #ffffff;
+      color: #23262d;
+      border-radius: 9px;
+      padding: 6px 8px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .primary-btn {
+      width: 100%;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 16px;
+      background: #374151;
+      color: #ffffff;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.16s ease, opacity 0.2s ease;
+    }
+
+    .primary-btn:active {
+      transform: scale(0.98);
+    }
+
+    .logout-btn {
+      border: 1px solid #e2e6ee;
+      background: #f8f9fb;
+      color: #68707e;
+      border-radius: 999px;
+      padding: 5px 11px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .review-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: #f8f9fb;
+      border: 1px solid #e2e6ee;
+      border-radius: 13px;
+      padding: 9px 11px;
+      font-size: 12.5px;
+    }
+
+    .del-btn {
+      border: none;
+      background: #fee2e2;
+      color: #b91c1c;
+      border-radius: 9px;
+      padding: 5px 9px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .toast-box {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translate(-50%, 16px);
+      background: #23262d;
+      color: #ffffff;
+      padding: 9px 16px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .toast-box.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="admin-wrap">
+    <!-- หน้าล็อกอิน -->
+    <section class="panel-card" id="loginCard">
+      <div class="panel-title">
+        <span>ระบบหลังบ้าน · leselristie</span>
+      </div>
+      <form id="loginForm" onsubmit="handleLogin(event)" style="display:flex; flex-direction:column; gap:10px;">
+        <input type="email" class="field-input" id="emailInput" placeholder="อีเมล" required>
+        <input type="password" class="field-input" id="passInput" placeholder="รหัสผ่าน" required>
+        <button type="submit" class="primary-btn">เข้าสู่ระบบหลังบ้าน</button>
+      </form>
+    </section>
+
+    <!-- หน้าจัดการหลังบ้าน -->
+    <section class="panel-card" id="dashboardCard" style="display:none;">
+      <div class="panel-title">
+        <span>จัดการเว็บ · leselristie</span>
+        <button type="button" class="logout-btn" onclick="handleLogout()">ออกจากระบบ</button>
+      </div>
+
+      <div class="section-block">
+        <div class="section-label">แก้ไขข้อความและรูปภาพ</div>
+        <input type="text" class="field-input" id="cfgMarquee" placeholder="ข้อความเลื่อนด้านบน">
+        <input type="text" class="field-input" id="cfgShopName" placeholder="ชื่อร้าน">
+        <textarea class="field-textarea" id="cfgBio" placeholder="ข้อความไบโอ"></textarea>
+        <input type="text" class="field-input" id="cfgBanner" placeholder="ลิงก์รูปแบนเนอร์">
+        <input type="text" class="field-input" id="cfgProfile" placeholder="ลิงก์รูปโปรไฟล์">
+        <input type="text" class="field-input" id="cfgFrame" placeholder="ลิงก์กรอบโปรไฟล์">
+        <input type="text" class="field-input" id="cfgSidePng" placeholder="ลิงก์ PNG ลอยข้างชื่อ">
+        <input type="text" class="field-input" id="cfgMusic" placeholder="ลิงก์เพลง MP3">
+      </div>
+
+      <div class="section-block">
+        <div class="section-label">แก้ไขสีเว็บ (ใส่โค้ดสีได้ไม่จำกัด เช่น #f4f5f7, #ffd6e5, rgb(...))</div>
+        <div class="color-grid">
+          <div class="color-box">
+            <span>พื้นหลังหลัก</span>
+            <div class="color-row">
+              <input type="color" class="color-swatch" data-key="bgPage" value="#f4f5f7" oninput="onSwatchChange(this)">
+              <input type="text" class="color-code-input" data-key="bgPage" value="#f4f5f7" oninput="onCodeChange(this)">
+            </div>
+          </div>
+          <div class="color-box">
+            <span>การ์ดและกล่อง</span>
+            <div class="color-row">
+              <input type="color" class="color-swatch" data-key="cardBg" value="#ffffff" oninput="onSwatchChange(this)">
+              <input type="text" class="color-code-input" data-key="cardBg" value="#ffffff" oninput="onCodeChange(this)">
+            </div>
+          </div>
+          <div class="color-box">
+            <span>ตัวกรอบไอแพด</span>
+            <div class="color-row">
+              <input type="color" class="color-swatch" data-key="ipadBg" value="#eef0f4" oninput="onSwatchChange(this)">
+              <input type="text" class="color-code-input" data-key="ipadBg" value="#eef0f4" oninput="onCodeChange(this)">
+            </div>
+          </div>
+          <div class="color-box">
+            <span>สีตัวอักษรหลัก</span>
+            <div class="color-row">
+              <input type="color" class="color-swatch" data-key="textMain" value="#23262d" oninput="onSwatchChange(this)">
+              <input type="text" class="color-code-input" data-key="textMain" value="#23262d" oninput="onCodeChange(this)">
+            </div>
+          </div>
+          <div class="color-box">
+            <span>สีตัวอักษรรอง</span>
+            <div class="color-row">
+              <input type="color" class="color-swatch" data-key="textMuted" value="#68707e" oninput="onSwatchChange(this)">
+              <input type="text" class="color-code-input" data-key="textMuted" value="#68707e" oninput="onCodeChange(this)">
+            </div>
+          </div>
+          <div class="color-box">
+            <span>สีปุ่มและแถบโพลล์</span>
+            <div class="color-row">
+              <input type="color" class="color-swatch" data-key="accentColor" value="#4b5563" oninput="onSwatchChange(this)">
+              <input type="text" class="color-code-input" data-key="accentColor" value="#4b5563" oninput="onCodeChange(this)">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button type="button" class="primary-btn" onclick="saveConfig()" style="margin-bottom:14px;">บันทึกการตั้งค่าทั้งหมด</button>
+
+      <div class="section-block">
+        <div class="section-label">จัดการรีวิวลูกค้า</div>
+        <div id="adminReviewsContainer" style="display:flex; flex-direction:column; gap:7px;"></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast-box" id="toastBox"></div>
+
+  <script>
+    const DB_COLLECTION = "leselristie_reviews_app";
+    const DEFAULT_MUSIC = "https://file.garden/asG8Gt-rqWIpi3II/Love%20Options%20(%E1%84%8B%E1%85%A7%E1%86%AB%E1%84%8B%E1%85%A2%E1%84%8B%E1%85%B4%20%E1%84%8C%E1%85%A9%E1%84%80%E1%85%A5%E1%86%AB).mp3";
+
+    const _CRED = {
+      u: "srezinalm@gmail.com",
+      p: "@punpunz9"
+    };
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCpAGDSy1NRgmLV_g7qJrCpwOhU9MrfQyY",
+      authDomain: "benefitie.firebaseapp.com",
+      projectId: "benefitie",
+      storageBucket: "benefitie.firebasestorage.app",
+      messagingSenderId: "270365672215",
+      appId: "1:270365672215:web:230d1491091e26ce83ed52"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    let currentConfig = {
+      marquee: "welcome to luvselris ♡ ขอบคุณที่กดเข้ามารีวิวให้กันนะคะ รักลูกค้าทุกคนมากค้าบ",
+      shopName: "leselristie",
+      bio: "ขอบคุณที่มารีวิวให้กันนะคะ ♡ อย่าลืมมาอุดหนุนกันอีกน้าคะ luv luv",
+      banner: "https://files.catbox.moe/astxkg.gif",
+      profile: "https://files.catbox.moe/dbjnjn.jpeg",
+      frame: "https://files.catbox.moe/rlcd00.gif",
+      sidePng: "https://files.catbox.moe/ov9l6c.png",
+      music: DEFAULT_MUSIC,
+      colors: {
+        bgPage: "#f4f5f7",
+        cardBg: "#ffffff",
+        ipadBg: "#eef0f4",
+        textMain: "#23262d",
+        textMuted: "#68707e",
+        accentColor: "#4b5563"
+      }
+    };
+
+    function notify(msg) {
+      const el = document.getElementById("toastBox");
+      el.textContent = msg;
+      el.classList.add("show");
+      clearTimeout(notify._t);
+      notify._t = setTimeout(() => el.classList.remove("show"), 2200);
+    }
+
+    function escapeText(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function showDashboard() {
+      document.getElementById("loginCard").style.display = "none";
+      document.getElementById("dashboardCard").style.display = "block";
+      populateInputs();
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById("emailInput").value.trim();
+      const pass = document.getElementById("passInput").value;
+      if (email === _CRED.u && pass === _CRED.p) {
+        sessionStorage.setItem("lesel_admin_ok", "1");
+        document.getElementById("emailInput").value = "";
+        document.getElementById("passInput").value = "";
+        showDashboard();
+        notify("เข้าสู่ระบบสำเร็จ");
+      } else {
+        notify("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
+      }
+    }
+
+    function handleLogout() {
+      sessionStorage.removeItem("lesel_admin_ok");
+      document.getElementById("dashboardCard").style.display = "none";
+      document.getElementById("loginCard").style.display = "block";
+    }
+
+    function populateInputs() {
+      document.getElementById("cfgMarquee").value = currentConfig.marquee || "";
+      document.getElementById("cfgShopName").value = currentConfig.shopName || "";
+      document.getElementById("cfgBio").value = currentConfig.bio || "";
+      document.getElementById("cfgBanner").value = currentConfig.banner || "";
+      document.getElementById("cfgProfile").value = currentConfig.profile || "";
+      document.getElementById("cfgFrame").value = currentConfig.frame || "";
+      document.getElementById("cfgSidePng").value = currentConfig.sidePng || "";
+      document.getElementById("cfgMusic").value = currentConfig.music || "";
+
+      const c = currentConfig.colors || {};
+      Object.keys(c).forEach(k => {
+        const codeEl = document.querySelector(`.color-code-input[data-key="${k}"]`);
+        const swatchEl = document.querySelector(`.color-swatch[data-key="${k}"]`);
+        if (codeEl) codeEl.value = c[k];
+        if (swatchEl && /^#[0-9a-fA-F]{6}$/.test(c[k])) swatchEl.value = c[k];
+      });
+    }
+
+    function onSwatchChange(swatch) {
+      const key = swatch.dataset.key;
+      const codeEl = document.querySelector(`.color-code-input[data-key="${key}"]`);
+      if (codeEl) codeEl.value = swatch.value;
+    }
+
+    function onCodeChange(input) {
+      const key = input.dataset.key;
+      const val = input.value.trim();
+      const swatchEl = document.querySelector(`.color-swatch[data-key="${key}"]`);
+      if (swatchEl && /^#[0-9a-fA-F]{6}$/.test(val)) swatchEl.value = val;
+    }
+
+    async function saveConfig() {
+      const colors = {};
+      document.querySelectorAll(".color-code-input").forEach(el => {
+        const k = el.dataset.key;
+        const v = el.value.trim();
+        if (v) colors[k] = v;
+      });
+
+      const nextCfg = {
+        marquee: document.getElementById("cfgMarquee").value.trim() || currentConfig.marquee,
+        shopName: document.getElementById("cfgShopName").value.trim() || currentConfig.shopName,
+        bio: document.getElementById("cfgBio").value,
+        banner: document.getElementById("cfgBanner").value.trim() || currentConfig.banner,
+        profile: document.getElementById("cfgProfile").value.trim() || currentConfig.profile,
+        frame: document.getElementById("cfgFrame").value.trim() || currentConfig.frame,
+        sidePng: document.getElementById("cfgSidePng").value.trim() || currentConfig.sidePng,
+        music: document.getElementById("cfgMusic").value.trim() || DEFAULT_MUSIC,
+        colors
+      };
+
+      try {
+        await db.collection(DB_COLLECTION).doc("store").set({ config: nextCfg }, { merge: true });
+        currentConfig = nextCfg;
+        notify("บันทึกเรียบร้อยแล้ว");
+      } catch (err) {
+        notify("บันทึกไม่สำเร็จ");
+      }
+    }
+
+    async function removeReview(id) {
+      try {
+        await db.collection(DB_COLLECTION).doc("store").collection("reviews").doc(id).delete();
+        notify("ลบรีวิวแล้ว");
+      } catch (err) {
+        notify("ลบรีวิวไม่สำเร็จ");
+      }
+    }
+
+    if (sessionStorage.getItem("lesel_admin_ok") === "1") {
+      showDashboard();
+    }
+
+    db.collection(DB_COLLECTION).doc("store").onSnapshot(doc => {
+      if (doc.exists && doc.data().config) {
+        currentConfig = {
+          ...currentConfig,
+          ...doc.data().config,
+          colors: { ...currentConfig.colors, ...(doc.data().config.colors || {}) }
+        };
+        if (sessionStorage.getItem("lesel_admin_ok") === "1") {
+          populateInputs();
+        }
+      }
+    });
+
+    db.collection(DB_COLLECTION).doc("store").collection("reviews")
+      .orderBy("createdAt", "desc")
+      .onSnapshot(snap => {
+        const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const container = document.getElementById("adminReviewsContainer");
+        if (!list.length) {
+          container.innerHTML = `<div style="font-size:12.5px; color:#68707e;">ยังไม่มีรีวิวในระบบ</div>`;
+          return;
+        }
+        container.innerHTML = list.map(r => `
+          <div class="review-row">
+            <div style="min-width:0; flex:1;">
+              <strong>${escapeText(r.name)}</strong> (${r.rating || 5}★): ${escapeText(r.comment)}
+            </div>
+            <button type="button" class="del-btn" onclick="removeReview('${r.id}')">ลบ</button>
+          </div>
+        `).join("");
+      });
+  </script>
+</body>
+</html>
