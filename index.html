@@ -18,7 +18,7 @@
       --bg-page: #f4f5f7;
       --bg-grad-start: #ffffff;
       --bg-grad-end: #e9ecf1;
-      --card-bg: #ffffff;
+      --card-bg: rgba(255, 255, 255, 0.95);
       --ipad-bg: #eef0f4;
       --ipad-bezel: #d8dde6;
       --text-main: #23262d;
@@ -46,7 +46,68 @@
       color: var(--text-main);
       background: linear-gradient(165deg, var(--bg-grad-start) 0%, var(--bg-page) 52%, var(--bg-grad-end) 100%);
       overflow-x: hidden;
+      position: relative;
       transition: background 0.35s ease, color 0.3s ease;
+    }
+
+    /* ลูกเล่นวงกลมลอยไปมา สีเทาขาวพาสเทล */
+    .pastel-grey-ambient {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .grey-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(22px);
+      animation: greyOrbFloat 14s ease-in-out infinite alternate;
+      will-change: transform;
+    }
+
+    .grey-bubble {
+      position: absolute;
+      bottom: -40px;
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0;
+      animation: greyBubbleRise 13s linear infinite;
+      will-change: transform, opacity;
+    }
+
+    @keyframes greyOrbFloat {
+      0% { transform: translate3d(0, 0, 0) scale(1); }
+      50% { transform: translate3d(18px, -22px, 0) scale(1.06); }
+      100% { transform: translate3d(-16px, 16px, 0) scale(0.96); }
+    }
+
+    @keyframes greyBubbleRise {
+      0% { transform: translate3d(0, 0, 0) scale(0.88); opacity: 0; }
+      16% { opacity: 0.72; }
+      84% { opacity: 0.58; }
+      100% { transform: translate3d(12px, -115vh, 0) scale(1.08); opacity: 0; }
+    }
+
+    /* GIF ตกแต่งลอยพริ้วบนฉากหลัง */
+    .floating-deco-gif {
+      position: fixed;
+      width: 54px;
+      height: 54px;
+      object-fit: contain;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.9;
+      filter: drop-shadow(0 6px 12px rgba(35, 38, 45, 0.1));
+      animation: decoGifFloat 10s ease-in-out infinite alternate;
+      will-change: transform;
+    }
+
+    @keyframes decoGifFloat {
+      0% { transform: translate3d(0, 0, 0) rotate(-4deg); }
+      50% { transform: translate3d(14px, -18px, 0) rotate(5deg); }
+      100% { transform: translate3d(-12px, 10px, 0) rotate(-3deg); }
     }
 
     .app-shell {
@@ -57,6 +118,8 @@
       display: flex;
       flex-direction: column;
       gap: 14px;
+      position: relative;
+      z-index: 2;
     }
 
     /* 1. กรอบข้อความเลื่อนได้ */
@@ -129,13 +192,14 @@
       display: flex;
       align-items: center;
       justify-content: flex-start;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
+    /* ขยายกรอบโปรไฟล์ให้ใหญ่ขึ้นเท่ากรอบวงกลมพอดี */
     .avatar-stage {
       position: relative;
-      width: 112px;
-      height: 112px;
+      width: 140px;
+      height: 140px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -143,8 +207,8 @@
     }
 
     .avatar-photo-circle {
-      width: 82px;
-      height: 82px;
+      width: 92px;
+      height: 92px;
       border-radius: 50%;
       overflow: hidden;
       background: #ffffff;
@@ -165,7 +229,7 @@
       width: 100%;
       height: 100%;
       object-fit: contain;
-      transform: scale(1.04);
+      transform: scale(1.22);
       transform-origin: center center;
       pointer-events: none;
       z-index: 2;
@@ -213,7 +277,7 @@
       border-top: 1px solid var(--border-soft);
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-start;
       gap: 8px;
       flex-wrap: wrap;
     }
@@ -223,7 +287,7 @@
       background: var(--pill-bg);
       color: var(--text-main);
       border-radius: 999px;
-      padding: 6px 12px;
+      padding: 6px 13px;
       font-size: 12px;
       font-weight: 700;
       cursor: pointer;
@@ -615,6 +679,17 @@
 
   <audio id="bgMusic" loop preload="auto" playsinline src="https://file.garden/asG8Gt-rqWIpi3II/Love%20Options%20(%E1%84%8B%E1%85%A7%E1%86%AB%E1%84%8B%E1%85%A2%E1%84%8B%E1%85%B4%20%E1%84%8C%E1%85%A9%E1%84%80%E1%85%A5%E1%86%AB).mp3"></audio>
 
+  <!-- ลูกเล่นวงกลมลอยไปมา สีเทาขาวพาสเทล -->
+  <div class="pastel-grey-ambient" id="pastelGreyAmbient">
+    <div class="grey-orb" style="width:210px; height:210px; top:8%; left:-45px; background:rgba(255, 255, 255, 0.85);"></div>
+    <div class="grey-orb" style="width:230px; height:230px; top:42%; right:-55px; background:rgba(218, 222, 230, 0.72); animation-delay:-4.5s;"></div>
+    <div class="grey-orb" style="width:190px; height:190px; bottom:10%; left:6%; background:rgba(232, 235, 240, 0.78); animation-delay:-9s;"></div>
+  </div>
+
+  <!-- GIF ตกแต่งลอยพริ้ว -->
+  <img id="decoGifLeft" src="https://files.catbox.moe/bvmii9.gif" alt="" class="floating-deco-gif" style="top: 15%; left: 4%;">
+  <img id="decoGifRight" src="https://files.catbox.moe/bvmii9.gif" alt="" class="floating-deco-gif" style="bottom: 18%; right: 4%; animation-delay: -5s;">
+
   <div class="app-shell">
     <!-- 1. กรอบข้อความเลื่อนได้ -->
     <div class="marquee-box">
@@ -649,7 +724,7 @@
       <div class="ig-meta-bar">
         <button type="button" class="music-mini-btn" id="musicBtn" onclick="toggleMusic(event)">
           <span>♫</span>
-          <span id="musicLabel">กดตรงไหนก็เล่นเพลง</span>
+          <span id="musicLabel">♫ เพลง</span>
         </button>
       </div>
     </section>
@@ -720,6 +795,7 @@
   <script>
     const DB_COLLECTION = "leselristie_reviews_app";
     const DEFAULT_AVATAR = "https://files.catbox.moe/jtgqn5.jpeg";
+    const DEFAULT_DECO_GIF = "https://files.catbox.moe/bvmii9.gif";
     const DEFAULT_MUSIC = "https://file.garden/asG8Gt-rqWIpi3II/Love%20Options%20(%E1%84%8B%E1%85%A7%E1%86%AB%E1%84%8B%E1%85%A2%E1%84%8B%E1%85%B4%20%E1%84%8C%E1%85%A9%E1%84%80%E1%85%A5%E1%86%AB).mp3";
 
     const firebaseConfig = {
@@ -742,6 +818,7 @@
       profile: "https://files.catbox.moe/dbjnjn.jpeg",
       frame: "https://files.catbox.moe/rlcd00.gif",
       sidePng: "https://files.catbox.moe/ov9l6c.png",
+      decoGif: DEFAULT_DECO_GIF,
       music: DEFAULT_MUSIC,
       colors: {
         bgPage: "#f4f5f7",
@@ -773,10 +850,10 @@
       const label = document.getElementById("musicLabel");
       if (!audioEl.paused) {
         btn.classList.add("active");
-        label.textContent = "กำลังเล่นเพลง";
+        label.textContent = "♪ กำลังเล่นเพลง";
       } else {
         btn.classList.remove("active");
-        label.textContent = musicPausedByUser ? "หยุดเพลงชั่วคราว" : "กดตรงไหนก็เล่นเพลง";
+        label.textContent = "♫ เพลง";
       }
     }
 
@@ -837,6 +914,10 @@
       document.getElementById("profileImg").src = currentConfig.profile;
       document.getElementById("profileFrameImg").src = currentConfig.frame;
       document.getElementById("nameSideImg").src = currentConfig.sidePng;
+
+      const decoSrc = currentConfig.decoGif || DEFAULT_DECO_GIF;
+      document.getElementById("decoGifLeft").src = decoSrc;
+      document.getElementById("decoGifRight").src = decoSrc;
 
       if (currentConfig.music && audioEl.getAttribute("src") !== currentConfig.music) {
         const wasPlaying = !audioEl.paused;
@@ -993,6 +1074,27 @@
         btn.textContent = "ส่งรีวิว";
       }
     }
+
+    // วงกลมลอยไปมา สีเทาขาวพาสเทล
+    const greyPastelPalette = [
+      "rgba(255, 255, 255, 0.85)",
+      "rgba(232, 235, 240, 0.78)",
+      "rgba(212, 217, 226, 0.68)",
+      "rgba(244, 246, 249, 0.82)"
+    ];
+    const ambientLayer = document.getElementById("pastelGreyAmbient");
+    setInterval(() => {
+      const b = document.createElement("div");
+      b.className = "grey-bubble";
+      const sz = 14 + Math.random() * 18;
+      b.style.width = sz + "px";
+      b.style.height = sz + "px";
+      b.style.background = greyPastelPalette[Math.floor(Math.random() * greyPastelPalette.length)];
+      b.style.left = (6 + Math.random() * 88) + "vw";
+      b.style.animationDuration = (11 + Math.random() * 5) + "s";
+      ambientLayer.appendChild(b);
+      setTimeout(() => b.remove(), 16500);
+    }, 1600);
 
     db.collection(DB_COLLECTION).doc("store").onSnapshot(doc => {
       if (doc.exists && doc.data().config) {
