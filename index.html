@@ -90,26 +90,6 @@
       100% { transform: translate3d(12px, -115vh, 0) scale(1.08); opacity: 0; }
     }
 
-    /* GIF ตกแต่งลอยพริ้วบนฉากหลัง */
-    .floating-deco-gif {
-      position: fixed;
-      width: 54px;
-      height: 54px;
-      object-fit: contain;
-      pointer-events: none;
-      z-index: 1;
-      opacity: 0.9;
-      filter: drop-shadow(0 6px 12px rgba(35, 38, 45, 0.1));
-      animation: decoGifFloat 10s ease-in-out infinite alternate;
-      will-change: transform;
-    }
-
-    @keyframes decoGifFloat {
-      0% { transform: translate3d(0, 0, 0) rotate(-4deg); }
-      50% { transform: translate3d(14px, -18px, 0) rotate(5deg); }
-      100% { transform: translate3d(-12px, 10px, 0) rotate(-3deg); }
-    }
-
     .app-shell {
       width: 100%;
       max-width: 540px;
@@ -195,11 +175,11 @@
       margin-bottom: 10px;
     }
 
-    /* ขยายกรอบโปรไฟล์ให้ใหญ่ขึ้นเท่ากรอบวงกลมพอดี */
+    /* ขยายกรอบโปรไฟล์ให้ใหญ่ขึ้นอีกนิด เพื่อกลบขอบรูปให้เนียนขึ้น */
     .avatar-stage {
       position: relative;
-      width: 140px;
-      height: 140px;
+      width: 148px;
+      height: 148px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -207,8 +187,8 @@
     }
 
     .avatar-photo-circle {
-      width: 92px;
-      height: 92px;
+      width: 88px;
+      height: 88px;
       border-radius: 50%;
       overflow: hidden;
       background: #ffffff;
@@ -229,7 +209,7 @@
       width: 100%;
       height: 100%;
       object-fit: contain;
-      transform: scale(1.22);
+      transform: scale(1.34);
       transform-origin: center center;
       pointer-events: none;
       z-index: 2;
@@ -271,39 +251,39 @@
       text-align: left;
     }
 
-    .ig-meta-bar {
+    /* GIF แทนคำว่าเพลง */
+    .music-gif-trigger {
       margin-top: 12px;
-      padding-top: 10px;
-      border-top: 1px solid var(--border-soft);
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .music-mini-btn {
-      border: 1.5px solid var(--border-soft);
-      background: var(--pill-bg);
-      color: var(--text-main);
-      border-radius: 999px;
-      padding: 6px 13px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      transition: transform 0.18s ease, background 0.2s ease, border-color 0.2s ease;
+      justify-content: center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1.5px solid var(--border-soft);
+      background: var(--pill-bg);
+      cursor: pointer;
+      transition: transform 0.16s ease, border-color 0.2s ease, opacity 0.2s ease;
     }
 
-    .music-mini-btn:active {
-      transform: scale(0.96);
+    .music-gif-trigger:active {
+      transform: scale(0.95);
     }
 
-    .music-mini-btn.active {
+    .music-gif-trigger.playing {
       border-color: var(--accent-color);
       background: #ffffff;
+    }
+
+    .music-gif-trigger.paused {
+      opacity: 0.65;
+    }
+
+    .music-gif-trigger img {
+      height: 36px;
+      width: auto;
+      max-width: 120px;
+      object-fit: contain;
+      display: block;
     }
 
     /* 4. โพลล์สรุปรีวิวและดาว */
@@ -686,10 +666,6 @@
     <div class="grey-orb" style="width:190px; height:190px; bottom:10%; left:6%; background:rgba(232, 235, 240, 0.78); animation-delay:-9s;"></div>
   </div>
 
-  <!-- GIF ตกแต่งลอยพริ้ว -->
-  <img id="decoGifLeft" src="https://files.catbox.moe/bvmii9.gif" alt="" class="floating-deco-gif" style="top: 15%; left: 4%;">
-  <img id="decoGifRight" src="https://files.catbox.moe/bvmii9.gif" alt="" class="floating-deco-gif" style="bottom: 18%; right: 4%; animation-delay: -5s;">
-
   <div class="app-shell">
     <!-- 1. กรอบข้อความเลื่อนได้ -->
     <div class="marquee-box">
@@ -721,12 +697,9 @@
 
       <div class="ig-bio-text" id="bioText">ขอบคุณที่มารีวิวให้กันนะคะ ♡ อย่าลืมมาอุดหนุนกันอีกน้าคะ luv luv</div>
 
-      <div class="ig-meta-bar">
-        <button type="button" class="music-mini-btn" id="musicBtn" onclick="toggleMusic(event)">
-          <span>♫</span>
-          <span id="musicLabel">♫ เพลง</span>
-        </button>
-      </div>
+      <button type="button" class="music-gif-trigger" id="musicGifBtn" onclick="toggleMusic(event)" aria-label="เล่นหรือหยุดเพลง">
+        <img id="musicGifImg" src="https://files.catbox.moe/bvmii9.gif" alt="Music">
+      </button>
     </section>
 
     <!-- 4. โพลล์สรุปรีวิวและดาว -->
@@ -795,7 +768,7 @@
   <script>
     const DB_COLLECTION = "leselristie_reviews_app";
     const DEFAULT_AVATAR = "https://files.catbox.moe/jtgqn5.jpeg";
-    const DEFAULT_DECO_GIF = "https://files.catbox.moe/bvmii9.gif";
+    const DEFAULT_MUSIC_GIF = "https://files.catbox.moe/bvmii9.gif";
     const DEFAULT_MUSIC = "https://file.garden/asG8Gt-rqWIpi3II/Love%20Options%20(%E1%84%8B%E1%85%A7%E1%86%AB%E1%84%8B%E1%85%A2%E1%84%8B%E1%85%B4%20%E1%84%8C%E1%85%A9%E1%84%80%E1%85%A5%E1%86%AB).mp3";
 
     const firebaseConfig = {
@@ -818,7 +791,7 @@
       profile: "https://files.catbox.moe/dbjnjn.jpeg",
       frame: "https://files.catbox.moe/rlcd00.gif",
       sidePng: "https://files.catbox.moe/ov9l6c.png",
-      decoGif: DEFAULT_DECO_GIF,
+      musicGif: DEFAULT_MUSIC_GIF,
       music: DEFAULT_MUSIC,
       colors: {
         bgPage: "#f4f5f7",
@@ -836,6 +809,7 @@
     let musicPausedByUser = false;
 
     const audioEl = document.getElementById("bgMusic");
+    const musicGifBtn = document.getElementById("musicGifBtn");
 
     function showToast(msg) {
       const el = document.getElementById("toastMsg");
@@ -846,14 +820,12 @@
     }
 
     function syncMusicUI() {
-      const btn = document.getElementById("musicBtn");
-      const label = document.getElementById("musicLabel");
       if (!audioEl.paused) {
-        btn.classList.add("active");
-        label.textContent = "♪ กำลังเล่นเพลง";
+        musicGifBtn.classList.add("playing");
+        musicGifBtn.classList.remove("paused");
       } else {
-        btn.classList.remove("active");
-        label.textContent = "♫ เพลง";
+        musicGifBtn.classList.remove("playing");
+        musicGifBtn.classList.add("paused");
       }
     }
 
@@ -867,6 +839,7 @@
       audioEl.play().catch(() => {});
     }
 
+    // กดตรงไหนบนหน้าเว็บครั้งแรกให้เพลงเริ่มเล่นทันที
     document.addEventListener("pointerdown", () => {
       if (!musicUnlocked) {
         musicUnlocked = true;
@@ -914,10 +887,7 @@
       document.getElementById("profileImg").src = currentConfig.profile;
       document.getElementById("profileFrameImg").src = currentConfig.frame;
       document.getElementById("nameSideImg").src = currentConfig.sidePng;
-
-      const decoSrc = currentConfig.decoGif || DEFAULT_DECO_GIF;
-      document.getElementById("decoGifLeft").src = decoSrc;
-      document.getElementById("decoGifRight").src = decoSrc;
+      document.getElementById("musicGifImg").src = currentConfig.musicGif || DEFAULT_MUSIC_GIF;
 
       if (currentConfig.music && audioEl.getAttribute("src") !== currentConfig.music) {
         const wasPlaying = !audioEl.paused;
