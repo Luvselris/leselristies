@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title id="pageTitle">leselristie ♡ reviews</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500;600&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    :root {
+      --bg-page: #f4f5f7;
+      --bg-grad-start: #ffffff;
+      --bg-grad-end: #e9ecf1;
+      --card-bg: #ffffff;
+      --ipad-bg: #eef0f4;
+      --ipad-bezel: #d8dde6;
+      --text-main: #23262d;
+      --text-muted: #68707e;
+      --accent-color: #4b5563;
+      --border-soft: #e2e6ee;
+      --star-color: #f5b942;
+      --pill-bg: #f8f9fb;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Quicksand', 'Mitr', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100vh;
+      color: var(--text-main);
+      background: linear-gradient(165deg, var(--bg-grad-start) 0%, var(--bg-page) 52%, var(--bg-grad-end) 100%);
+      overflow-x: hidden;
+      transition: background 0.35s ease, color 0.3s ease;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 540px;
+      margin: 0 auto;
+      padding: 14px 14px 88px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* 1. กรอบข้อความเลื่อนได้ */
+    .marquee-box {
+      background: var(--card-bg);
+      border: 1.5px solid var(--border-soft);
+      border-radius: 999px;
+      padding: 9px 14px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 6px 18px rgba(24, 28, 36, 0.05);
+    }
+
+    .marquee-track {
+      display: inline-block;
+      white-space: nowrap;
+      padding-left: 100%;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      animation: smoothMarquee 17s linear infinite;
+      will-change: transform;
+    }
+
+    .marquee-box:hover .marquee-track {
+      animation-play-state: paused;
+    }
+
+    @keyframes smoothMarquee {
+      0% { transform: translate3d(0, 0, 0); }
+      100% { transform: translate3d(-100%, 0, 0); }
+    }
+
+    /* 2. แบนเนอร์เคลื่อนไหวได้ */
+    .banner-card {
+      background: var(--card-bg);
+      border: 1.5px solid var(--border-soft);
+      border-radius: 22px;
+      padding: 8px;
+      box-shadow: 0 8px 24px rgba(24, 28, 36, 0.06);
+    }
+
+    .banner-wrap {
+      width: 100%;
+      height: 164px;
+      border-radius: 16px;
+      overflow: hidden;
+      background: var(--pill-bg);
+    }
+
+    .banner-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* 3. โปรไฟล์คนละบรรทัดกับแบนเนอร์ ชิดซ้ายสไตล์ IG */
+    .ig-profile-card {
+      background: var(--card-bg);
+      border: 1.5px solid var(--border-soft);
+      border-radius: 22px;
+      padding: 16px 16px 18px;
+      text-align: left;
+      box-shadow: 0 8px 24px rgba(24, 28, 36, 0.06);
+    }
+
+    .ig-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .avatar-stage {
+      position: relative;
+      width: 112px;
+      height: 112px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .avatar-photo-circle {
+      width: 82px;
+      height: 82px;
+      border-radius: 50%;
+      overflow: hidden;
+      background: #ffffff;
+      position: relative;
+      z-index: 1;
+    }
+
+    .avatar-photo-circle img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .avatar-frame-overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transform: scale(1.04);
+      transform-origin: center center;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .shop-name-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 7px;
+      margin-bottom: 6px;
+    }
+
+    .shop-title {
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: 0.2px;
+    }
+
+    .floating-name-png {
+      width: 26px;
+      height: 26px;
+      object-fit: contain;
+      animation: nameFloatUpDown 2.6s ease-in-out infinite;
+      will-change: transform;
+    }
+
+    @keyframes nameFloatUpDown {
+      0%, 100% { transform: translate3d(0, 0, 0); }
+      50% { transform: translate3d(0, -5px, 0); }
+    }
+
+    .ig-bio-text {
+      font-size: 13.5px;
+      line-height: 1.75;
+      color: var(--text-muted);
+      white-space: pre-line;
+      text-align: left;
+    }
+
+    .ig-meta-bar {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border-soft);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .music-mini-btn {
+      border: 1.5px solid var(--border-soft);
+      background: var(--pill-bg);
+      color: var(--text-main);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.18s ease, background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .music-mini-btn:active {
+      transform: scale(0.96);
+    }
+
+    .music-mini-btn.active {
+      border-color: var(--accent-color);
+      background: #ffffff;
+    }
+
+    /* 4. โพลล์สรุปรีวิวและดาว */
+    .poll-card {
+      background: var(--card-bg);
+      border: 1.5px solid var(--border-soft);
+      border-radius: 22px;
+      padding: 16px;
+      box-shadow: 0 8px 24px rgba(24, 28, 36, 0.06);
+    }
+
+    .poll-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      gap: 10px;
+    }
+
+    .poll-title {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .poll-score-badge {
+      background: var(--pill-bg);
+      border: 1px solid var(--border-soft);
+      border-radius: 14px;
+      padding: 6px 11px;
+      text-align: right;
+    }
+
+    .poll-avg-num {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .poll-stars-display {
+      font-size: 12.5px;
+      color: var(--star-color);
+      letter-spacing: 1px;
+    }
+
+    .poll-count-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .poll-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .poll-bar-row {
+      display: grid;
+      grid-template-columns: 44px 1fr 38px;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .poll-track {
+      height: 8px;
+      border-radius: 999px;
+      background: var(--pill-bg);
+      overflow: hidden;
+      border: 1px solid var(--border-soft);
+    }
+
+    .poll-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: var(--accent-color);
+      transition: width 0.35s ease;
+    }
+
+    /* 5. กรอบไอแพด โทนขาว-เทา-ดำพาสเทล สำหรับเขียนและอ่านรีวิว */
+    .ipad-frame {
+      background: var(--ipad-bg);
+      border: 3px solid var(--ipad-bezel);
+      border-radius: 28px;
+      padding: 14px;
+      box-shadow:
+        0 14px 32px rgba(24, 28, 36, 0.08),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .ipad-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 4px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .ipad-dots {
+      display: flex;
+      gap: 5px;
+    }
+
+    .ipad-dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #cbd2dc;
+    }
+
+    .ipad-dots span:nth-child(2) {
+      background: #9aa3b2;
+    }
+
+    .ipad-dots span:nth-child(3) {
+      background: #4b5563;
+    }
+
+    .review-form-box {
+      background: var(--card-bg);
+      border: 1.5px solid var(--border-soft);
+      border-radius: 20px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .review-form-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .star-picker {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .star-btn {
+      background: none;
+      border: none;
+      font-size: 22px;
+      line-height: 1;
+      color: #d5dae3;
+      cursor: pointer;
+      transition: transform 0.15s ease, color 0.15s ease;
+    }
+
+    .star-btn.selected {
+      color: var(--star-color);
+    }
+
+    .star-btn:active {
+      transform: scale(0.9);
+    }
+
+    .field-input, .field-textarea {
+      width: 100%;
+      border: 1.5px solid var(--border-soft);
+      background: var(--pill-bg);
+      color: var(--text-main);
+      border-radius: 14px;
+      padding: 10px 12px;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .field-input:focus, .field-textarea:focus {
+      border-color: var(--accent-color);
+      background: #ffffff;
+    }
+
+    .field-textarea {
+      min-height: 76px;
+      resize: vertical;
+    }
+
+    .avatar-picker-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--pill-bg);
+      border: 1.5px dashed var(--border-soft);
+      border-radius: 14px;
+      padding: 8px 10px;
+    }
+
+    .avatar-preview-thumb {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1.5px solid #ffffff;
+      background: #e5e7eb;
+      flex-shrink: 0;
+    }
+
+    .avatar-upload-meta {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .avatar-upload-label {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+
+    .avatar-upload-hint {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .clear-avatar-btn {
+      border: 1px solid var(--border-soft);
+      background: #ffffff;
+      color: var(--text-muted);
+      border-radius: 10px;
+      padding: 5px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .submit-review-btn {
+      width: 100%;
+      padding: 11px 16px;
+      border-radius: 16px;
+      border: none;
+      background: var(--accent-color);
+      color: #ffffff;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.16s ease, opacity 0.2s ease;
+    }
+
+    .submit-review-btn:active {
+      transform: scale(0.98);
+    }
+
+    .submit-review-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* รายการรีวิวสไตล์คอมเมนต์ IG ในกรอบ iPad */
+    .reviews-feed-box {
+      background: var(--card-bg);
+      border: 1.5px solid var(--border-soft);
+      border-radius: 20px;
+      padding: 12px;
+      max-height: 440px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .ig-comment-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-soft);
+      animation: softFadeIn 0.28s ease;
+    }
+
+    .ig-comment-item:last-child {
+      border-bottom: none;
+      padding-bottom: 2px;
+    }
+
+    @keyframes softFadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .ig-comment-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1.5px solid var(--border-soft);
+      background: #e5e7eb;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .ig-comment-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .ig-comment-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 3px;
+    }
+
+    .ig-comment-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .ig-comment-stars {
+      font-size: 11.5px;
+      color: var(--star-color);
+      flex-shrink: 0;
+    }
+
+    .ig-comment-text {
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--text-main);
+      word-break: break-word;
+      margin-bottom: 4px;
+    }
+
+    .ig-comment-time {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .empty-reviews {
+      text-align: center;
+      padding: 24px 10px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .toast-msg {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translate(-50%, 16px);
+      background: #23262d;
+      color: #ffffff;
+      padding: 9px 16px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 80;
+    }
+
+    .toast-msg.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+  </style>
+</head>
+<body>
+
+  <audio id="bgMusic" loop preload="auto" playsinline src="https://file.garden/asG8Gt-rqWIpi3II/Love%20Options%20(%E1%84%8B%E1%85%A7%E1%86%AB%E1%84%8B%E1%85%A2%E1%84%8B%E1%85%B4%20%E1%84%8C%E1%85%A9%E1%84%80%E1%85%A5%E1%86%AB).mp3"></audio>
+
+  <div class="app-shell">
+    <!-- 1. กรอบข้อความเลื่อนได้ -->
+    <div class="marquee-box">
+      <div class="marquee-track" id="marqueeText">welcome to luvselris ♡ ขอบคุณที่กดเข้ามารีวิวให้กันนะคะ รักลูกค้าทุกคนมากค้าบ</div>
+    </div>
+
+    <!-- 2. แบนเนอร์เคลื่อนไหวได้ -->
+    <section class="banner-card">
+      <div class="banner-wrap">
+        <img id="bannerImg" src="https://files.catbox.moe/astxkg.gif" alt="Banner">
+      </div>
+    </section>
+
+    <!-- 3. โปรไฟล์คนละบรรทัดกับแบนเนอร์ ชิดซ้ายสไตล์ IG -->
+    <section class="ig-profile-card">
+      <div class="ig-top-row">
+        <div class="avatar-stage">
+          <div class="avatar-photo-circle">
+            <img id="profileImg" src="https://files.catbox.moe/dbjnjn.jpeg" alt="Profile">
+          </div>
+          <img id="profileFrameImg" class="avatar-frame-overlay" src="https://files.catbox.moe/rlcd00.gif" alt="Frame">
+        </div>
+      </div>
+
+      <div class="shop-name-row">
+        <span class="shop-title" id="shopTitleText">leselristie</span>
+        <img id="nameSideImg" class="floating-name-png" src="https://files.catbox.moe/ov9l6c.png" alt="Icon">
+      </div>
+
+      <div class="ig-bio-text" id="bioText">ขอบคุณที่มารีวิวให้กันนะคะ ♡ อย่าลืมมาอุดหนุนกันอีกน้าคะ luv luv</div>
+
+      <div class="ig-meta-bar">
+        <button type="button" class="music-mini-btn" id="musicBtn" onclick="toggleMusic(event)">
+          <span>♫</span>
+          <span id="musicLabel">กดตรงไหนก็เล่นเพลง</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- 4. โพลล์สรุปรีวิวและดาว -->
+    <section class="poll-card">
+      <div class="poll-header">
+        <div class="poll-title">สรุปผลโหวตและดาวรีวิว</div>
+        <div class="poll-score-badge">
+          <div class="poll-avg-num"><span id="avgRatingText">5.0</span> / 5.0</div>
+          <div class="poll-stars-display" id="avgStarsDisplay">★★★★★</div>
+          <div class="poll-count-sub" id="totalReviewsText">0 รีวิว</div>
+        </div>
+      </div>
+
+      <div class="poll-bars" id="pollBars">
+        <div class="poll-bar-row"><span>5 ★</span><div class="poll-track"><div class="poll-fill" data-star="5"></div></div><span data-count="5">0</span></div>
+        <div class="poll-bar-row"><span>4 ★</span><div class="poll-track"><div class="poll-fill" data-star="4"></div></div><span data-count="4">0</span></div>
+        <div class="poll-bar-row"><span>3 ★</span><div class="poll-track"><div class="poll-fill" data-star="3"></div></div><span data-count="3">0</span></div>
+        <div class="poll-bar-row"><span>2 ★</span><div class="poll-track"><div class="poll-fill" data-star="2"></div></div><span data-count="2">0</span></div>
+        <div class="poll-bar-row"><span>1 ★</span><div class="poll-track"><div class="poll-fill" data-star="1"></div></div><span data-count="1">0</span></div>
+      </div>
+    </section>
+
+    <!-- 5. กรอบไอแพด โทนขาว-เทา-ดำพาสเทล สำหรับเขียนและอ่านรีวิว -->
+    <section class="ipad-frame">
+      <div class="ipad-top-bar">
+        <span>leselristie · customer reviews</span>
+        <div class="ipad-dots"><span></span><span></span><span></span></div>
+      </div>
+
+      <form class="review-form-box" id="reviewForm" onsubmit="submitReview(event)">
+        <div class="review-form-title">เขียนรีวิวให้ร้าน leselristie</div>
+
+        <div class="star-picker" id="starPicker">
+          <button type="button" class="star-btn selected" data-val="1" onclick="setStar(1)">★</button>
+          <button type="button" class="star-btn selected" data-val="2" onclick="setStar(2)">★</button>
+          <button type="button" class="star-btn selected" data-val="3" onclick="setStar(3)">★</button>
+          <button type="button" class="star-btn selected" data-val="4" onclick="setStar(4)">★</button>
+          <button type="button" class="star-btn selected" data-val="5" onclick="setStar(5)">★</button>
+        </div>
+
+        <input type="text" class="field-input" id="reviewerName" placeholder="ชื่อลูกค้า..." maxlength="40" required>
+
+        <div class="avatar-picker-row">
+          <img id="customerAvatarPreview" class="avatar-preview-thumb" src="https://files.catbox.moe/jtgqn5.jpeg" alt="Customer Avatar">
+          <div class="avatar-upload-meta">
+            <label for="customerAvatarFile" class="avatar-upload-label">เลือกรูปโปรไฟล์ลูกค้า (ไม่บังคับ)</label>
+            <div class="avatar-upload-hint" id="customerAvatarStatus">ไม่ใส่จะใช้รูปค่าเริ่มต้นอัตโนมัติ</div>
+            <input type="file" id="customerAvatarFile" accept="image/*" style="display:none;" onchange="handleCustomerAvatar(this)">
+          </div>
+          <button type="button" class="clear-avatar-btn" onclick="resetCustomerAvatar()">ใช้รูปเดิม</button>
+        </div>
+
+        <textarea class="field-textarea" id="reviewerComment" placeholder="พิมพ์ความประทับใจหรือรีวิวของคุณ..." maxlength="400" required></textarea>
+
+        <button type="submit" class="submit-review-btn" id="submitReviewBtn">ส่งรีวิว</button>
+      </form>
+
+      <div class="reviews-feed-box" id="reviewsFeed">
+        <div class="empty-reviews">กำลังโหลดรีวิว...</div>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast-msg" id="toastMsg"></div>
+
+  <script>
+    const DB_COLLECTION = "leselristie_reviews_app";
+    const DEFAULT_AVATAR = "https://files.catbox.moe/jtgqn5.jpeg";
+    const DEFAULT_MUSIC = "https://file.garden/asG8Gt-rqWIpi3II/Love%20Options%20(%E1%84%8B%E1%85%A7%E1%86%AB%E1%84%8B%E1%85%A2%E1%84%8B%E1%85%B4%20%E1%84%8C%E1%85%A9%E1%84%80%E1%85%A5%E1%86%AB).mp3";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCpAGDSy1NRgmLV_g7qJrCpwOhU9MrfQyY",
+      authDomain: "benefitie.firebaseapp.com",
+      projectId: "benefitie",
+      storageBucket: "benefitie.firebasestorage.app",
+      messagingSenderId: "270365672215",
+      appId: "1:270365672215:web:230d1491091e26ce83ed52"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    let currentConfig = {
+      marquee: "welcome to luvselris ♡ ขอบคุณที่กดเข้ามารีวิวให้กันนะคะ รักลูกค้าทุกคนมากค้าบ",
+      shopName: "leselristie",
+      bio: "ขอบคุณที่มารีวิวให้กันนะคะ ♡ อย่าลืมมาอุดหนุนกันอีกน้าคะ luv luv",
+      banner: "https://files.catbox.moe/astxkg.gif",
+      profile: "https://files.catbox.moe/dbjnjn.jpeg",
+      frame: "https://files.catbox.moe/rlcd00.gif",
+      sidePng: "https://files.catbox.moe/ov9l6c.png",
+      music: DEFAULT_MUSIC,
+      colors: {
+        bgPage: "#f4f5f7",
+        cardBg: "#ffffff",
+        ipadBg: "#eef0f4",
+        textMain: "#23262d",
+        textMuted: "#68707e",
+        accentColor: "#4b5563"
+      }
+    };
+
+    let selectedStars = 5;
+    let uploadedCustomerAvatar = "";
+    let musicUnlocked = false;
+    let musicPausedByUser = false;
+
+    const audioEl = document.getElementById("bgMusic");
+
+    function showToast(msg) {
+      const el = document.getElementById("toastMsg");
+      el.textContent = msg;
+      el.classList.add("show");
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => el.classList.remove("show"), 2200);
+    }
+
+    function syncMusicUI() {
+      const btn = document.getElementById("musicBtn");
+      const label = document.getElementById("musicLabel");
+      if (!audioEl.paused) {
+        btn.classList.add("active");
+        label.textContent = "กำลังเล่นเพลง";
+      } else {
+        btn.classList.remove("active");
+        label.textContent = musicPausedByUser ? "หยุดเพลงชั่วคราว" : "กดตรงไหนก็เล่นเพลง";
+      }
+    }
+
+    audioEl.addEventListener("play", syncMusicUI);
+    audioEl.addEventListener("pause", syncMusicUI);
+
+    function playMusicNow() {
+      if (!audioEl.getAttribute("src")) {
+        audioEl.setAttribute("src", currentConfig.music || DEFAULT_MUSIC);
+      }
+      audioEl.play().catch(() => {});
+    }
+
+    document.addEventListener("pointerdown", () => {
+      if (!musicUnlocked) {
+        musicUnlocked = true;
+        if (!musicPausedByUser && audioEl.paused) {
+          playMusicNow();
+        }
+      }
+    }, { passive: true });
+
+    function toggleMusic(e) {
+      if (e) e.stopPropagation();
+      musicUnlocked = true;
+      if (audioEl.paused) {
+        musicPausedByUser = false;
+        playMusicNow();
+      } else {
+        musicPausedByUser = true;
+        audioEl.pause();
+      }
+    }
+
+    function applyColors(colors = {}) {
+      const merged = { ...currentConfig.colors, ...colors };
+      const root = document.documentElement.style;
+      root.setProperty("--bg-page", merged.bgPage);
+      root.setProperty("--card-bg", merged.cardBg);
+      root.setProperty("--ipad-bg", merged.ipadBg);
+      root.setProperty("--text-main", merged.textMain);
+      root.setProperty("--text-muted", merged.textMuted);
+      root.setProperty("--accent-color", merged.accentColor);
+    }
+
+    function applyConfigToPage(cfg) {
+      currentConfig = {
+        ...currentConfig,
+        ...(cfg || {}),
+        colors: { ...currentConfig.colors, ...((cfg && cfg.colors) || {}) }
+      };
+
+      document.getElementById("marqueeText").textContent = currentConfig.marquee;
+      document.getElementById("shopTitleText").textContent = currentConfig.shopName;
+      document.getElementById("pageTitle").textContent = currentConfig.shopName + " ♡";
+      document.getElementById("bioText").textContent = currentConfig.bio;
+      document.getElementById("bannerImg").src = currentConfig.banner;
+      document.getElementById("profileImg").src = currentConfig.profile;
+      document.getElementById("profileFrameImg").src = currentConfig.frame;
+      document.getElementById("nameSideImg").src = currentConfig.sidePng;
+
+      if (currentConfig.music && audioEl.getAttribute("src") !== currentConfig.music) {
+        const wasPlaying = !audioEl.paused;
+        audioEl.setAttribute("src", currentConfig.music);
+        audioEl.load();
+        if (wasPlaying) playMusicNow();
+      }
+
+      applyColors(currentConfig.colors);
+    }
+
+    function setStar(val) {
+      selectedStars = val;
+      document.querySelectorAll("#starPicker .star-btn").forEach(btn => {
+        const n = Number(btn.dataset.val);
+        btn.classList.toggle("selected", n <= val);
+      });
+    }
+
+    function handleCustomerAvatar(input) {
+      const file = input.files && input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const size = 140;
+          canvas.width = size;
+          canvas.height = size;
+          const ctx = canvas.getContext("2d");
+          const minSide = Math.min(img.width, img.height);
+          const sx = (img.width - minSide) / 2;
+          const sy = (img.height - minSide) / 2;
+          ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, size, size);
+          uploadedCustomerAvatar = canvas.toDataURL("image/jpeg", 0.78);
+          document.getElementById("customerAvatarPreview").src = uploadedCustomerAvatar;
+          document.getElementById("customerAvatarStatus").textContent = "เลือกรูปโปรไฟล์แล้ว";
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function resetCustomerAvatar() {
+      uploadedCustomerAvatar = "";
+      document.getElementById("customerAvatarFile").value = "";
+      document.getElementById("customerAvatarPreview").src = DEFAULT_AVATAR;
+      document.getElementById("customerAvatarStatus").textContent = "ไม่ใส่จะใช้รูปค่าเริ่มต้นอัตโนมัติ";
+    }
+
+    function formatDateTimeSlash(dateObj) {
+      const d = dateObj instanceof Date && !isNaN(dateObj) ? dateObj : new Date();
+      const pad = n => String(n).padStart(2, "0");
+      const day = pad(d.getDate());
+      const month = pad(d.getMonth() + 1);
+      const year = d.getFullYear();
+      const hour = pad(d.getHours());
+      const min = pad(d.getMinutes());
+      return `${day}/${month}/${year} · ${hour}:${min}`;
+    }
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function renderPollAndReviews(reviews) {
+      const total = reviews.length;
+      const counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+      let sum = 0;
+
+      reviews.forEach(item => {
+        const s = Math.min(5, Math.max(1, Number(item.rating) || 5));
+        counts[s] += 1;
+        sum += s;
+      });
+
+      const avg = total > 0 ? (sum / total).toFixed(1) : "5.0";
+      const filledStars = total > 0 ? Math.round(sum / total) : 5;
+
+      document.getElementById("avgRatingText").textContent = avg;
+      document.getElementById("avgStarsDisplay").textContent = "★".repeat(filledStars) + "☆".repeat(5 - filledStars);
+      document.getElementById("totalReviewsText").textContent = `${total} รีวิว`;
+
+      [5, 4, 3, 2, 1].forEach(star => {
+        const c = counts[star];
+        const pct = total > 0 ? Math.round((c / total) * 100) : 0;
+        const fillEl = document.querySelector(`.poll-fill[data-star="${star}"]`);
+        const countEl = document.querySelector(`.poll-bar-row span[data-count="${star}"]`);
+        if (fillEl) fillEl.style.width = `${pct}%`;
+        if (countEl) countEl.textContent = c;
+      });
+
+      const feedEl = document.getElementById("reviewsFeed");
+      if (!total) {
+        feedEl.innerHTML = `<div class="empty-reviews">ยังไม่มีรีวิว มาเป็นคนแรกที่รีวิวให้ร้านกันน้า ♡</div>`;
+      } else {
+        feedEl.innerHTML = reviews.map(r => {
+          const dt = r.createdAt && r.createdAt.toDate ? r.createdAt.toDate() : new Date(r.createdAt || Date.now());
+          const avatarSrc = r.avatar || DEFAULT_AVATAR;
+          const starCount = Math.min(5, Math.max(1, Number(r.rating) || 5));
+          return `
+            <article class="ig-comment-item">
+              <img src="${escapeHtml(avatarSrc)}" alt="" class="ig-comment-avatar" onerror="this.src='${DEFAULT_AVATAR}'">
+              <div class="ig-comment-body">
+                <div class="ig-comment-head">
+                  <span class="ig-comment-name">${escapeHtml(r.name)}</span>
+                  <span class="ig-comment-stars">${"★".repeat(starCount)}</span>
+                </div>
+                <div class="ig-comment-text">${escapeHtml(r.comment)}</div>
+                <div class="ig-comment-time">${formatDateTimeSlash(dt)}</div>
+              </div>
+            </article>
+          `;
+        }).join("");
+      }
+    }
+
+    async function submitReview(e) {
+      e.preventDefault();
+      const nameInput = document.getElementById("reviewerName");
+      const commentInput = document.getElementById("reviewerComment");
+      const btn = document.getElementById("submitReviewBtn");
+
+      const name = nameInput.value.trim();
+      const comment = commentInput.value.trim();
+      if (!name || !comment) return;
+
+      btn.disabled = true;
+      btn.textContent = "กำลังส่งรีวิว...";
+
+      try {
+        await db.collection(DB_COLLECTION).doc("store").collection("reviews").add({
+          name,
+          comment,
+          rating: selectedStars,
+          avatar: uploadedCustomerAvatar || DEFAULT_AVATAR,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        nameInput.value = "";
+        commentInput.value = "";
+        setStar(5);
+        resetCustomerAvatar();
+        showToast("ส่งรีวิวเรียบร้อยแล้ว ขอบคุณนะคะ ♡");
+      } catch (err) {
+        showToast("ส่งรีวิวไม่สำเร็จ ลองใหม่อีกครั้งนะ");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "ส่งรีวิว";
+      }
+    }
+
+    db.collection(DB_COLLECTION).doc("store").onSnapshot(doc => {
+      if (doc.exists && doc.data().config) {
+        applyConfigToPage(doc.data().config);
+      }
+    });
+
+    db.collection(DB_COLLECTION).doc("store").collection("reviews")
+      .orderBy("createdAt", "desc")
+      .onSnapshot(snap => {
+        const reviews = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderPollAndReviews(reviews);
+      });
+  </script>
+</body>
+</html>
